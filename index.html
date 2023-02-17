@@ -1,0 +1,156 @@
+<style>
+.c0{min-height: 20px; min-width:21px; height:20px; width:21px; background-image:url('ball-red.jpg');background-repeat:no-repeat}
+.c1{min-height: 20px; min-width:21px; height:20px; width:21px; background-image:url('ball-green.jpg');background-repeat:no-repeat}
+.c2{min-height: 20px; min-width:21px; height:20px; width:21px; background-image:url('ball-blue.jpg');background-repeat:no-repeat}
+.c{font-size: 8pt;text-align:center}
+.outer{width: 100%}
+.desc{display: block; font-family: georgia,'times new roman',times,serif; width: 600px; margin-left: 20px; margin-bottom: 10px; }
+table {border-collapse: collapse; margin-left: 20px; }
+input {margin-left: 20px;}
+</style>
+<script>
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-163688-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+
+	var r=0;
+	var g=1;
+	var b=2;
+	
+	var innerhtml;
+
+	function sort(array) {
+		innerhtml = "<table>";
+		var b1=0;
+		var b2=0;
+		var b3=array.length-1;
+		
+		draw(array, b1, b2, b3);
+		
+		while(b2<=b3) {
+			if (array[b2] == r) {
+				swap(array, b1, b2);
+				b1++; b2++;
+			} else if (array[b2] == g) {
+				b2++;
+			} else {
+				swap(array, b2, b3);
+				b3--;
+			}
+			draw(array, b1, b2, b3)
+		}
+		innerhtml += "</table>";
+		render();
+	}
+	
+	function swap(array, a, b) {
+		var tmp = array[a];
+		array[a] = array[b];
+		array[b] = tmp;
+	}
+	
+	function draw(array, b1, b2, b3) {
+		var html = "<tr>";
+		for (var i=0; i<array.length; i++) {
+			html += "<td class=\"c\">";
+			if (i==b1) html += "1";
+			if (i==b2) html += " 2";
+			if (i==b3) html += " 3";
+			html += "</td>";
+		}
+		html += "</tr>";
+		html += "<tr>";
+		for (var i=0; i<array.length; i++) {
+			html += "<td class=\"c" + array[i] + "\">";
+			html += "</td>";
+		}
+		html += "</tr>";
+		innerhtml += html;
+	}
+	function render() {
+		document.getElementById("b").innerHTML = innerhtml;
+		fixMinWidthForIE();
+	}
+	function go() {
+		sort([g,b,r,b,b,g,b,r,g,r,g,r,b,r,b,b,r,g,g,b,r,r]);
+	}
+	
+	function update() {
+		var array = [];
+		var vals = document.getElementById("i").value.replace(/ /g,'').split(",");
+		for (var i=0; i<vals.length; i++) {
+			if (vals[i]=="r" || vals[i] == "R") array[array.length] = r;
+			else if (vals[i]=="g" || vals[i] == "G") array[array.length] = g;
+			else if (vals[i]=="b" || vals[i] == "B") array[array.length] = b;
+			else {
+				alert("Bad input.  Should be like this example: g,b,r,b,b,g,b,r,g,r,g,r,b,r,b,b,r,g,g,b,r,r");
+				return;
+			}
+		}
+		sort(array);
+	}
+	
+	function random() {
+		var n = 10 + Math.round((Math.random()*50));
+		
+		var array = []; var inp = "";
+		for (var i=0; i<n; i++) {
+			var val;
+			var color = Math.random();
+			if (color < 1/3) val = r;
+			else if (color < 2/3) val = g;
+			else val = b;
+			
+			array[array.length] = val;
+			if (inp != "") inp += ",";
+			if (val == r) inp += "r";
+			else if (val == g) inp += "g";
+			else inp += "b";
+		}
+		document.getElementById("i").value = inp;
+		sort(array);
+	}
+	
+	function fixMinWidthForIE(){
+	   try{
+	      if(!document.body.currentStyle){return} //IE only
+	   }catch(e){return}
+	   var elems=document.getElementsByTagName("*");
+	   for(e=0; e<elems.length; e++){
+	      var eCurStyle = elems[e].currentStyle;
+	      var l_minWidth = (eCurStyle.minWidth) ? eCurStyle.minWidth : eCurStyle.getAttribute("min-width"); //IE7 : IE6
+	      if(l_minWidth && l_minWidth != 'auto'){
+	         var shim = document.createElement("DIV");
+	         shim.style.cssText = 'margin:0 !important; padding:0 !important; border:0 !important; line-height:0 !important; height:0 !important; BACKGROUND:RED;';
+	         shim.style.width = l_minWidth;
+	         shim.appendChild(document.createElement("&nbsp;"));
+	         if(elems[e].canHaveChildren){
+	            elems[e].appendChild(shim);
+	         }else{
+	            //??
+	         }
+	      }
+	   }
+	}	
+	
+	
+</script>
+
+<html>
+<div class="outer">
+<div class="desc">
+This is a visual demonstration of a solution to an Oxford University sort problem described by John Graham-Cumming on <a href="http://blog.jgc.org/2013/05/the-two-problems-i-had-to-solve-in-my.html">his blog</a>.  A robot has to sort colored balls, can only inspect each ball once, and must do something with the ball immediately after inspecting it.  Enter color values below and click "Sort".  Or click "Random" to generate random examples.  The visualization below shows each step of the algorithm.  The numbers 1,2 and 3 are pointers.  The robot is only looking at the ball at pointer #2, occasionally swapping with the ball at #1 or #3.  View source to see the JavaScript implementation of the algorithm.
+</div></div>
+<body onload="update()">
+<input id="i" type="text" size="100" value="g,b,r,b,b,g,b,r,g,r,g,r,b,r,b,b,r,g,g,b,r,r"><br><input type="button" value="Sort" onclick="update()"><input type="button" value="Random" onclick="random()">
+<span id="b"/>
+</body>
+</html>
